@@ -22,7 +22,7 @@ window.PAGES = {
 
   "Retro Bowl": "https://newertab.github.io/rb/",
 
-  "Five Nights at Epstien's": "https://newertab.github.io/FNAE-4-1-26/",
+  "Five Nights at Epstiens": "https://newertab.github.io/FNAE-4-1-26/",
   
   "Slots": "https://newertab.github.io/Slot-Machine/" // Last
 };
