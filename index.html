@@ -30,8 +30,7 @@ color:var(--text);
 overflow:hidden;
 }
 
-/* ================= NAV ================= */
-
+/* NAV */
 nav{
 position:fixed;
 inset:0 0 auto 0;
@@ -45,10 +44,7 @@ border-bottom:1px solid var(--border);
 z-index:1000;
 }
 
-.title{
-font-weight:800;
-font-size:20px;
-}
+.title{font-weight:800;font-size:20px;}
 
 .tabs{
 display:flex;
@@ -61,20 +57,9 @@ align-items:center;
 padding:6px 12px;
 border-radius:8px;
 cursor:pointer;
-display:flex;
-gap:6px;
-align-items:center;
 }
 
-.tab:hover{
-background:var(--bg-2);
-}
-
-.tab.active{
-background:rgba(56,189,248,.12);
-box-shadow:inset 0 0 0 1px var(--accent);
-font-weight:600;
-}
+.tab:hover{background:var(--bg-2);}
 
 #viewer{
 position:fixed;
@@ -86,17 +71,15 @@ border:none;
 background:black;
 }
 
-/* ================= POPUP ================= */
-
+/* POPUP */
 .popup{
 position:fixed;
 inset:0;
-background:rgba(0,0,0,0.65);
+background:rgba(0,0,0,0.7);
 display:flex;
 align-items:center;
 justify-content:center;
 z-index:2000;
-animation:fadeIn .3s ease;
 }
 
 .popup-box{
@@ -104,23 +87,32 @@ background:var(--bg-2);
 border:1px solid var(--border);
 border-radius:16px;
 padding:28px;
-width:360px;
+width:380px;
 text-align:center;
-box-shadow:0 20px 60px rgba(0,0,0,0.6);
-animation:popIn .35s ease;
 }
 
 .popup-title{
 font-size:20px;
-font-weight:700;
+font-weight:800;
 margin-bottom:10px;
 }
 
 .popup-text{
 color:var(--muted);
 font-size:14px;
-margin-bottom:20px;
-line-height:1.4;
+margin-bottom:14px;
+}
+
+/* BIG URL DISPLAY */
+.url-box{
+margin:12px 0 18px;
+padding:10px;
+border-radius:10px;
+background:#0b1220;
+border:1px solid var(--border);
+word-break:break-all;
+font-size:13px;
+color:#93c5fd;
 }
 
 .popup-buttons{
@@ -130,23 +122,18 @@ justify-content:center;
 }
 
 .btn{
-padding:10px 16px;
+padding:10px 14px;
 border-radius:10px;
 border:none;
 cursor:pointer;
 background:var(--bg);
 color:var(--text);
-transition:.2s;
-}
-
-.btn:hover{
-transform:translateY(-1px);
 }
 
 .btn.primary{
 background:var(--accent);
 color:#000;
-font-weight:600;
+font-weight:700;
 }
 
 .btn:disabled{
@@ -154,43 +141,35 @@ opacity:.5;
 cursor:not-allowed;
 }
 
-.copied-msg{
-margin-top:12px;
+.copied{
+margin-top:10px;
 font-size:13px;
-color:var(--accent);
-opacity:0;
-transition:.3s;
-}
-
-/* animations */
-@keyframes fadeIn{
-from{opacity:0;}
-to{opacity:1;}
-}
-
-@keyframes popIn{
-from{transform:scale(.9);opacity:0;}
-to{transform:scale(1);opacity:1;}
+color:#38bdf8;
+min-height:18px;
 }
 </style>
 </head>
 
 <body>
 
-<!-- ================= POPUP ================= -->
+<!-- POPUP -->
 <div id="popup" class="popup">
   <div class="popup-box">
 
     <div class="popup-title">Enable Email Notifications</div>
 
     <div class="popup-text">
-      Enable email notifications so if this site gets blocked,
-      you'll receive the new URL automatically.
+      If this site gets blocked, you'll get the new URL automatically.
+    </div>
+
+    <!-- BIG MANUAL URL DISPLAY -->
+    <div class="url-box">
+      https://forms.gle/TUeMfjBxiSW6xQru9
     </div>
 
     <div class="popup-buttons">
       <button id="enableBtn" class="btn primary">
-        Enable Notifications
+        Copy Link
       </button>
 
       <button id="skipBtn" class="btn" disabled>
@@ -198,12 +177,12 @@ to{transform:scale(1);opacity:1;}
       </button>
     </div>
 
-    <div id="copiedMsg" class="copied-msg"></div>
+    <div id="copiedMsg" class="copied"></div>
 
   </div>
 </div>
 
-<!-- ================= NAV ================= -->
+<!-- NAV -->
 <nav>
 <div class="title">New Tab 2</div>
 <div class="tabs" id="tabs"></div>
@@ -218,20 +197,19 @@ const tabs = document.getElementById("tabs");
 const iframe = document.getElementById("viewer");
 
 function loadGame(name,url){
-iframe.src=url;
+iframe.src = url;
 }
 
 function build(){
-tabs.innerHTML="";
+tabs.innerHTML = "";
 Object.entries(PAGES).forEach(([name,url])=>{
-const tab=document.createElement("div");
-tab.className="tab";
-tab.textContent=name;
-tab.onclick=()=>loadGame(name,url);
+const tab = document.createElement("div");
+tab.className = "tab";
+tab.textContent = name;
+tab.onclick = () => loadGame(name,url);
 tabs.appendChild(tab);
 });
 }
-
 build();
 
 /* ================= POPUP LOGIC ================= */
@@ -243,44 +221,43 @@ const copiedMsg = document.getElementById("copiedMsg");
 
 const FORM_LINK = "https://forms.gle/TUeMfjBxiSW6xQru9";
 
-/* COPY BUTTON */
-enableBtn.onclick = async () => {
+/* COPY (ROBUST) */
+enableBtn.addEventListener("click", async () => {
   try {
     await navigator.clipboard.writeText(FORM_LINK);
-
     copiedMsg.textContent = "Copied to clipboard!";
-    copiedMsg.style.opacity = "1";
-
-    setTimeout(() => {
-      copiedMsg.style.opacity = "0";
-    }, 2500);
-
-  } catch (err) {
-    copiedMsg.textContent = "Copy failed. Please copy manually.";
-    copiedMsg.style.opacity = "1";
+  } catch (e) {
+    // fallback if clipboard fails
+    copiedMsg.textContent = "Copy failed — use the link above.";
   }
-};
 
-/* COUNTDOWN */
+  setTimeout(() => copiedMsg.textContent = "", 2500);
+});
+
+/* TIMER (FIXED RELIABLE UPDATE) */
 let time = 20;
-skipBtn.textContent = `Skip (${time})`;
 
-const timer = setInterval(() => {
-  time--;
-
+const updateButton = () => {
   if (time > 0) {
     skipBtn.textContent = `Skip (${time})`;
   } else {
-    clearInterval(timer);
     skipBtn.textContent = "Skip";
     skipBtn.disabled = false;
+    clearInterval(timer);
   }
+};
+
+updateButton();
+
+const timer = setInterval(() => {
+  time--;
+  updateButton();
 }, 1000);
 
-/* CLOSE POPUP */
-skipBtn.onclick = () => {
+/* CLOSE */
+skipBtn.addEventListener("click", () => {
   popup.style.display = "none";
-};
+});
 </script>
 
 </body>
