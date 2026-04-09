@@ -206,7 +206,7 @@ function build() {
 build();
 
 /* =========================
-   POPUP LOGIC (ONCE ONLY)
+   POPUP LOGIC
 ========================= */
 
 const popup = document.getElementById("popup");
@@ -241,9 +241,9 @@ let time = 20;
 
 const updateButton = () => {
   if (time > 0) {
-    skipBtn.textContent = `Skip (${time})`;
+    skipBtn.textContent = `Close (${time})`;
   } else {
-    skipBtn.textContent = "Skip";
+    skipBtn.textContent = "Close";
     skipBtn.disabled = false;
     clearInterval(timer);
   }
