@@ -15,7 +15,7 @@ crossorigin="anonymous"></script>
   --bg: #0f172a;
   --bg-2: #111827;
   --border: #1f2937;
-  --text: #e5e7eb;
+  --text: #ffffff;
   --muted: #9ca3af;
   --accent: #38bdf8;
 }
@@ -24,7 +24,7 @@ crossorigin="anonymous"></script>
 
 body {
   margin: 0;
-  font-family: system-ui, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
   background: var(--bg);
   color: var(--text);
   overflow: hidden;
@@ -71,107 +71,103 @@ nav {
   background: black;
 }
 
-/* POPUP */
-.popup {
+/* FULLSCREEN OVERLAY POPUP */
+.overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.7);
+  background: #000000;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  z-index: 2000;
-}
-
-.popup-box {
-  background: var(--bg-2);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 28px;
-  width: 380px;
+  z-index: 9999;
+  padding: 20px;
   text-align: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.5s ease, visibility 0.5s;
 }
 
-.popup-title {
-  font-size: 20px;
-  font-weight: 800;
-  margin-bottom: 10px;
+.overlay.active {
+  opacity: 1;
+  visibility: visible;
 }
 
-.popup-text {
-  color: var(--muted);
-  font-size: 14px;
-  margin-bottom: 14px;
+.overlay-content {
+  max-width: 700px;
+  transform: translateY(20px);
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.url-box {
-  margin: 12px 0 18px;
-  padding: 10px;
-  border-radius: 10px;
-  background: #0b1220;
-  border: 1px solid var(--border);
-  word-break: break-all;
-  font-size: 13px;
-  color: #93c5fd;
+.overlay.active .overlay-content {
+  transform: translateY(0);
 }
 
-.popup-buttons {
+.overlay-title {
+  font-size: clamp(24px, 5vw, 42px);
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 40px;
+  color: #ffffff;
+}
+
+.overlay-btns {
   display: flex;
-  gap: 10px;
+  gap: 20px;
   justify-content: center;
+  flex-wrap: wrap;
 }
 
-.btn {
-  padding: 10px 14px;
-  border-radius: 10px;
+.btn-choice {
+  padding: 16px 48px;
+  font-size: 18px;
+  font-weight: 600;
+  border-radius: 50px;
   border: none;
   cursor: pointer;
-  background: var(--bg);
-  color: var(--text);
+  transition: all 0.2s ease;
 }
 
-.btn.primary {
-  background: var(--accent);
-  color: #000;
-  font-weight: 700;
+.btn-yes {
+  background: #ffffff;
+  color: #000000;
 }
 
-.btn:disabled {
-  opacity: .5;
+.btn-yes:hover {
+  background: #e2e2e2;
+  transform: scale(1.05);
+}
+
+.btn-no {
+  background: transparent;
+  border: 2px solid #333;
+  color: #666;
+}
+
+.btn-no:not(:disabled):hover {
+  border-color: #fff;
+  color: #fff;
+}
+
+.btn-no:disabled {
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
-.copied {
-  margin-top: 10px;
-  font-size: 13px;
-  color: var(--accent);
-  min-height: 18px;
-}
 </style>
 </head>
 
 <body>
 
-<!-- POPUP -->
-<div id="popup" class="popup">
-  <div class="popup-box">
-
-    <div class="popup-title">Enable Email Notifications</div>
-
-    <div class="popup-text">
-      If this site gets blocked, you'll get the new URL automatically.
+<!-- FULLSCREEN POPUP -->
+<div id="emailPopup" class="overlay">
+  <div class="overlay-content">
+    <div class="overlay-title">Would you like to be emailed the new URL when this site is blocked?</div>
+    
+    <div class="overlay-btns">
+      <button id="yesBtn" class="btn-choice btn-yes">Yes</button>
+      <button id="noBtn" class="btn-choice btn-no" disabled>No (5)</button>
     </div>
-
-    <div class="url-box">
-      https://forms.gle/TUeMfjBxiSW6xQru9
-    </div>
-
-    <div class="popup-buttons">
-      <button id="enableBtn" class="btn primary">Copy Link</button>
-      <button id="skipBtn" class="btn" disabled>Skip (20)</button>
-    </div>
-
-    <div id="copiedMsg" class="copied"></div>
-
   </div>
 </div>
 
@@ -186,6 +182,7 @@ nav {
 <script src="games.js"></script>
 
 <script>
+/* TAB LOADING LOGIC */
 const tabs = document.getElementById("tabs");
 const iframe = document.getElementById("viewer");
 
@@ -195,72 +192,71 @@ function loadGame(name, url) {
 
 function build() {
   tabs.innerHTML = "";
-  Object.entries(PAGES).forEach(([name, url]) => {
-    const tab = document.createElement("div");
-    tab.className = "tab";
-    tab.textContent = name;
-    tab.onclick = () => loadGame(name, url);
-    tabs.appendChild(tab);
-  });
+  // Check if PAGES exists from games.js
+  if(typeof PAGES !== 'undefined'){
+    Object.entries(PAGES).forEach(([name, url]) => {
+      const tab = document.createElement("div");
+      tab.className = "tab";
+      tab.textContent = name;
+      tab.onclick = () => loadGame(name, url);
+      tabs.appendChild(tab);
+    });
+  }
 }
 build();
 
 /* =========================
-   POPUP LOGIC
+   NEW POPUP LOGIC
 ========================= */
 
-const popup = document.getElementById("popup");
-const enableBtn = document.getElementById("enableBtn");
-const skipBtn = document.getElementById("skipBtn");
-const copiedMsg = document.getElementById("copiedMsg");
+const emailPopup = document.getElementById("emailPopup");
+const yesBtn = document.getElementById("yesBtn");
+const noBtn = document.getElementById("noBtn");
 
 const FORM_LINK = "https://forms.gle/TUeMfjBxiSW6xQru9";
-const POPUP_KEY = "email_popup_seen_v1";
+const STORAGE_KEY = "email_prompt_dismissed";
 
-/* SHOW ONLY ON FIRST VISIT */
-if (localStorage.getItem(POPUP_KEY) === "true") {
-  popup.style.display = "none";
-} else {
-  popup.style.display = "flex";
+// Check local storage
+if (!localStorage.getItem(STORAGE_KEY)) {
+  // Show with small delay for animation effect
+  setTimeout(() => {
+    emailPopup.classList.add('active');
+    startNoTimer();
+  }, 100);
 }
 
-/* COPY BUTTON */
-enableBtn.addEventListener("click", async () => {
-  try {
-    await navigator.clipboard.writeText(FORM_LINK);
-    copiedMsg.textContent = "Copied to clipboard!";
-  } catch {
-    copiedMsg.textContent = "Copy failed — use the link above.";
-  }
+function hideAndSave() {
+  emailPopup.classList.remove('active');
+  localStorage.setItem(STORAGE_KEY, "true");
+  // Remove from DOM after transition to allow clicks underneath
+  setTimeout(() => emailPopup.style.display = "none", 500);
+}
 
-  setTimeout(() => copiedMsg.textContent = "", 2500);
+// YES Button
+yesBtn.addEventListener("click", () => {
+  window.open(FORM_LINK, '_blank');
+  hideAndSave();
 });
 
-/* TIMER */
-let time = 20;
-
-const updateButton = () => {
-  if (time > 0) {
-    skipBtn.textContent = `Close (${time})`;
-  } else {
-    skipBtn.textContent = "Close";
-    skipBtn.disabled = false;
-    clearInterval(timer);
-  }
-};
-
-updateButton();
-
-const timer = setInterval(() => {
-  time--;
-  updateButton();
-}, 1000);
-
-/* CLOSE + SAVE (ONLY ON SKIP) */
-skipBtn.addEventListener("click", () => {
-  popup.style.display = "none";
-  localStorage.setItem(POPUP_KEY, "true");
+// NO Button
+noBtn.addEventListener("click", () => {
+  hideAndSave();
 });
+
+// Timer for NO button
+function startNoTimer() {
+  let timeLeft = 5;
+  const timerInterval = setInterval(() => {
+    timeLeft--;
+    if (timeLeft > 0) {
+      noBtn.textContent = `No (${timeLeft})`;
+    } else {
+      noBtn.textContent = "No";
+      noBtn.disabled = false;
+      clearInterval(timerInterval);
+    }
+  }, 1000);
+}
 </script>
 
 </body>
