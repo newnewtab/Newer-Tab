@@ -22,7 +22,7 @@ window.PAGES = {
   },
   
   "Rocket League 3D": { 
-    "url": "https://newnewtab.github.io/SmashKarts/" 
+    "url": "https://newnewtab.github.io/RL3D/" 
   },
 
   "Geometry Dash": { 
