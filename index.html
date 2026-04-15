@@ -231,7 +231,7 @@ const MAX_VISIBLE = 6; // Tabs to show before moving to "More"
 
 function loadGame(name, url, element) {
   iframe.src = url;
-  statusText.textContent = `Playing: ${name}`;
+  statusText.textContent = `${name}`;
   
   // Update active state
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
