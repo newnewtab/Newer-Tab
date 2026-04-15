@@ -1,26 +1,55 @@
 window.PAGES = {
+  "Polytrack": { 
+    "url": "https://t3m1n4l.github.io/polytrack/", 
+    "ribbon": "New", 
+    "ribbonColor": "#ef4444" 
+  },
+  
+  "Drive Mad": { 
+    "url": "https://newnewtab.github.io/drive-mad/drive-mad-new/", 
+    "ribbon": "Hot", 
+    "ribbonColor": "#f59e0b" 
+  },
+  
+  "Snow Rider": { 
+    "url": "https://jigar1234nob.github.io/snowrider3d/" 
+  },
+  
+  "Basket Bros": { 
+    "url": "https://hacker-114.github.io/basket-bros/" 
+  },
 
-  "Polytrack": "https://t3m1n4l.github.io/polytrack/",
+  "Moto X3M 2": { 
+    "url": "https://newnewtab.github.io/Moto-X3M-2/" 
+  },
   
-  "Drive Mad": "https://newnewtab.github.io/drive-mad/drive-mad-new/",
-  
-  "Snow Rider": "https://jigar1234nob.github.io/snowrider3d/",
-  
-  "Basket Bros": "https://hacker-114.github.io/basket-bros/",
+  "Rocket League 3D": { 
+    "url": "https://newnewtab.github.io/SmashKarts/" 
+  },
 
-  "Moto X3M 2": "https://newnewtab.github.io/Moto-X3M-2/",
+  "Geometry Dash": { 
+    "url": "https://threekho.github.io/gdl/" 
+  },
   
-  "Rocket League 3D": "https://newnewtab.github.io/SmashKarts/",
+  "Basket Random": { 
+    "url": "https://unblocked-games-786.github.io/Basket-Random/" 
+  },
+  
+  "Eggy Car": { 
+    "url": "https://newnewtab.github.io/EggyCar/" 
+  },
+  
+  "Retro Bowl": { 
+    "url": "https://newnewtab.github.io/rb/" 
+  },
 
-  "Geometry Dash": "https://threekho.github.io/gdl/",
+  "Five Nights at Epstiens": { 
+    "url": "https://newnewtab.github.io/FNAE-4-1-26/", 
+    "ribbon": "Updated", 
+    "ribbonColor": "#8b5cf6" 
+  },
   
-  "Basket Random": "https://unblocked-games-786.github.io/Basket-Random/",
-  
-  "Eggy Car": "https://newnewtab.github.io/EggyCar/",
-  
-  "Retro Bowl": "https://newnewtab.github.io/rb/",
-
-  "Five Nights at Epstiens": "https://newnewtab.github.io/FNAE-4-1-26/",
-  
-  "Slots": "https://newnewtab.github.io/Slot-Machine/" // Last
+  "Slots": { 
+    "url": "https://newnewtab.github.io/Slot-Machine/" 
+  }
 };
