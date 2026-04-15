@@ -2,22 +2,21 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>New Tab</title>
+<title>New Tab 2 | Premium</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<script async
-src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7762107676364310"
-crossorigin="anonymous"></script>
+<script async src="https://googlesyndication.com" crossorigin="anonymous"></script>
 
 <style>
 :root {
-  --nav-height: 56px;
-  --bg: #0f172a;
-  --bg-2: #111827;
-  --border: #1f2937;
-  --text: #ffffff;
-  --muted: #9ca3af;
+  --nav-height: 64px;
+  --bg: #020617;
+  --bg-card: #1e293b;
+  --border: rgba(255, 255, 255, 0.1);
+  --text: #f8fafc;
+  --muted: #94a3b8;
   --accent: #38bdf8;
+  --radius: 12px;
 }
 
 * { box-sizing: border-box; }
@@ -30,58 +29,125 @@ body {
   overflow: hidden;
 }
 
-/* NAV */
+/* NAVBAR */
 nav {
   position: fixed;
   inset: 0 0 auto 0;
   height: var(--nav-height);
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 0 18px;
-  background: var(--bg);
+  justify-content: space-between;
+  padding: 0 24px;
+  background: rgba(15, 23, 42, 0.9);
+  backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
   z-index: 1000;
 }
 
-.title { font-weight: 800; font-size: 20px; }
-
-.tabs {
+.brand {
   display: flex;
-  gap: 12px; /* Increased gap slightly for ribbons */
+  flex-direction: column;
+  min-width: fit-content;
+  margin-right: 30px;
+}
+
+.title { font-weight: 800; font-size: 18px; letter-spacing: -0.5px; }
+.status { font-size: 11px; color: var(--accent); font-weight: 600; text-transform: uppercase; }
+
+/* TABS CONTAINER */
+.tabs-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   flex: 1;
+  overflow: visible; 
+}
+
+.tabs-main {
+  display: flex;
+  gap: 8px;
   align-items: center;
 }
 
-/* TAB CONTAINER */
 .tab {
-  position: relative; /* Needed to anchor the ribbon */
-  padding: 6px 12px;
-  border-radius: 8px;
+  position: relative;
+  padding: 8px 16px;
+  border-radius: var(--radius);
   cursor: pointer;
   background: transparent;
-  transition: background 0.2s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   font-weight: 500;
-  overflow: visible; /* Allows ribbon to pop out if needed */
+  white-space: nowrap;
+  font-size: 14px;
+  color: var(--muted);
 }
 
-.tab:hover { background: var(--bg-2); }
+.tab:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+}
 
-/* RIBBON STYLE */
+.tab.active {
+  background: var(--accent);
+  color: #000;
+  font-weight: 700;
+}
+
+/* DROPDOWN */
+.dropdown {
+  position: relative;
+  display: none; 
+}
+
+.dropdown-trigger {
+  padding: 8px 16px;
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 13px;
+  border: 1px solid var(--border);
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  background: #1e293b;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px;
+  min-width: 180px;
+  box-shadow: 0 10px 25px -5px rgba(0,0,0,0.5);
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dropdown.open .dropdown-menu { display: flex; animation: slideIn 0.2s ease-out; }
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* RIBBONS */
 .ribbon {
   position: absolute;
-  top: -8px;
-  right: -5px;
+  top: -6px;
+  right: -6px;
   padding: 2px 6px;
   font-size: 9px;
-  font-weight: 800;
+  font-weight: 900;
   color: white;
   text-transform: uppercase;
   border-radius: 4px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-  pointer-events: none; /* Don't block clicks */
+  z-index: 10;
+  pointer-events: none;
 }
 
+/* IFRAME */
 #viewer {
   position: fixed;
   top: var(--nav-height);
@@ -89,200 +155,168 @@ nav {
   width: 100%;
   height: calc(100% - var(--nav-height));
   border: none;
-  background: black;
+  background: #000;
 }
 
-/* FULLSCREEN OVERLAY POPUP */
+/* POPUP */
 .overlay {
   position: fixed;
   inset: 0;
-  background: #000000;
+  background: rgba(2, 6, 23, 0.95);
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   z-index: 9999;
-  padding: 20px;
-  text-align: center;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.5s ease, visibility 0.5s;
+  transition: 0.4s ease;
 }
-
-.overlay.active {
-  opacity: 1;
-  visibility: visible;
-}
-
+.overlay.active { opacity: 1; visibility: visible; }
 .overlay-content {
-  max-width: 700px;
-  transform: translateY(20px);
-  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  background: #1e293b;
+  padding: 40px;
+  border-radius: 24px;
+  max-width: 500px;
+  border: 1px solid var(--border);
+  text-align: center;
 }
-
-.overlay.active .overlay-content {
-  transform: translateY(0);
-}
-
-.overlay-title {
-  font-size: clamp(24px, 5vw, 42px);
-  font-weight: 700;
-  line-height: 1.2;
-  margin-bottom: 40px;
-  color: #ffffff;
-}
-
-.overlay-btns {
-  display: flex;
-  gap: 20px;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.btn-choice {
-  padding: 16px 48px;
-  font-size: 18px;
-  font-weight: 600;
-  border-radius: 50px;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-yes {
-  background: #ffffff;
-  color: #000000;
-}
-
-.btn-yes:hover {
-  background: #e2e2e2;
-  transform: scale(1.05);
-}
-
-.btn-no {
-  background: transparent;
-  border: 2px solid #333;
-  color: #666;
-}
-
-.btn-no:not(:disabled):hover {
-  border-color: #fff;
-  color: #fff;
-}
-
-.btn-no:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
+.overlay-btns { display: flex; gap: 12px; margin-top: 30px; justify-content: center; }
+.btn-choice { padding: 12px 28px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; transition: 0.2s; }
+.btn-yes { background: var(--accent); color: #000; }
+.btn-no { background: transparent; border: 1px solid var(--border); color: var(--muted); }
 </style>
 </head>
 
 <body>
 
-<!-- FULLSCREEN POPUP -->
 <div id="emailPopup" class="overlay">
   <div class="overlay-content">
-    <div class="overlay-title">Would you like to be emailed the new URL when this site is blocked?</div>
-    
+    <h2 style="margin-top:0">Update Notification</h2>
+    <p style="color: var(--muted)">Want a link emailed to you when this site gets blocked?</p>
     <div class="overlay-btns">
-      <button id="yesBtn" class="btn-choice btn-yes">Yes</button>
+      <button id="yesBtn" class="btn-choice btn-yes">Yes, notify me</button>
       <button id="noBtn" class="btn-choice btn-no" disabled>No (5)</button>
     </div>
   </div>
 </div>
 
-<!-- NAV -->
 <nav>
-  <div class="title">New Tab 2</div>
-  <div class="tabs" id="tabs"></div>
+  <div class="brand">
+    <div class="title">New Tab 2</div>
+    <div id="status" class="status">Idle</div>
+  </div>
+  
+  <div class="tabs-wrapper">
+    <div class="tabs-main" id="tabsMain"></div>
+    <div class="dropdown" id="moreDropdown">
+      <div class="dropdown-trigger" onclick="toggleDropdown()">More Games ▾</div>
+      <div class="dropdown-menu" id="tabsMore"></div>
+    </div>
+  </div>
 </nav>
 
 <iframe id="viewer"></iframe>
 
+<!-- Loading your external JS file -->
 <script src="games.js"></script>
 
 <script>
-/* TAB LOADING LOGIC */
-const tabs = document.getElementById("tabs");
+const tabsMain = document.getElementById("tabsMain");
+const tabsMore = document.getElementById("tabsMore");
+const moreDropdown = document.getElementById("moreDropdown");
+const statusText = document.getElementById("status");
 const iframe = document.getElementById("viewer");
 
-function loadGame(name, url) {
+const MAX_VISIBLE = 6; // Tabs to show before moving to "More"
+
+function loadGame(name, url, element) {
   iframe.src = url;
+  statusText.textContent = `Playing: ${name}`;
+  
+  // Update active state
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  element.classList.add('active');
+  
+  // Close dropdown if a game inside it was clicked
+  moreDropdown.classList.remove('open');
 }
 
 function build() {
-  tabs.innerHTML = "";
-  if(typeof PAGES !== 'undefined'){
-    Object.entries(PAGES).forEach(([name, data]) => {
-      // Check if data is an object (new format) or string (old format)
-      const url = typeof data === 'string' ? data : data.url;
-      const ribbonText = data.ribbon || null;
-      const ribbonColor = data.ribbonColor || "#38bdf8";
+  if (typeof PAGES === 'undefined') return;
+  
+  tabsMain.innerHTML = "";
+  tabsMore.innerHTML = "";
+  
+  const entries = Object.entries(PAGES);
+  
+  entries.forEach(([name, data], index) => {
+    const url = typeof data === 'string' ? data : data.url;
+    const ribbonText = data.ribbon || null;
+    const ribbonColor = data.ribbonColor || "var(--accent)";
 
-      const tab = document.createElement("div");
-      tab.className = "tab";
-      tab.textContent = name;
-      tab.onclick = () => loadGame(name, url);
+    const tab = document.createElement("div");
+    tab.className = "tab";
+    tab.textContent = name;
+    tab.onclick = () => loadGame(name, url, tab);
 
-      // Add Ribbon if text exists
-      if (ribbonText) {
-        const ribbon = document.createElement("span");
-        ribbon.className = "ribbon";
-        ribbon.textContent = ribbonText;
-        ribbon.style.backgroundColor = ribbonColor;
-        tab.appendChild(ribbon);
-      }
+    if (ribbonText) {
+      const ribbon = document.createElement("span");
+      ribbon.className = "ribbon";
+      ribbon.textContent = ribbonText;
+      ribbon.style.backgroundColor = ribbonColor;
+      tab.appendChild(ribbon);
+    }
 
-      tabs.appendChild(tab);
-    });
-  }
+    if (index < MAX_VISIBLE) {
+      tabsMain.appendChild(tab);
+    } else {
+      moreDropdown.style.display = "block";
+      tabsMore.appendChild(tab);
+    }
+  });
 }
-build();
+
+function toggleDropdown() {
+  moreDropdown.classList.toggle('open');
+}
+
+// Close menu when clicking away
+window.addEventListener('click', (e) => {
+  if (!e.target.closest('#moreDropdown')) moreDropdown.classList.remove('open');
+});
 
 /* POPUP LOGIC */
 const emailPopup = document.getElementById("emailPopup");
 const yesBtn = document.getElementById("yesBtn");
 const noBtn = document.getElementById("noBtn");
+const FORM_LINK = "https://forms.gle";
 
-const FORM_LINK = "https://forms.gle/TUeMfjBxiSW6xQru9";
-const STORAGE_KEY = "email_prompt_dismissed";
-
-if (!localStorage.getItem(STORAGE_KEY)) {
+if (!localStorage.getItem("email_prompt_dismissed")) {
   setTimeout(() => {
     emailPopup.classList.add('active');
-    startNoTimer();
-  }, 100);
+    let count = 5;
+    const timer = setInterval(() => {
+      count--;
+      if (count > 0) noBtn.textContent = `No (${count})`;
+      else {
+        noBtn.textContent = "No";
+        noBtn.disabled = false;
+        clearInterval(timer);
+      }
+    }, 1000);
+  }, 500);
 }
 
-function hideAndSave() {
+function dismiss() {
   emailPopup.classList.remove('active');
-  localStorage.setItem(STORAGE_KEY, "true");
-  setTimeout(() => emailPopup.style.display = "none", 500);
+  localStorage.setItem("email_prompt_dismissed", "true");
 }
 
-yesBtn.addEventListener("click", () => {
-  window.open(FORM_LINK, '_blank');
-  hideAndSave();
-});
+yesBtn.onclick = () => { window.open(FORM_LINK, '_blank'); dismiss(); };
+noBtn.onclick = dismiss;
 
-noBtn.addEventListener("click", () => {
-  hideAndSave();
-});
-
-function startNoTimer() {
-  let timeLeft = 5;
-  const timerInterval = setInterval(() => {
-    timeLeft--;
-    if (timeLeft > 0) {
-      noBtn.textContent = `No (${timeLeft})`;
-    } else {
-      noBtn.textContent = "No";
-      noBtn.disabled = false;
-      clearInterval(timerInterval);
-    }
-  }, 1000);
-}
+// Initial Build
+build();
 </script>
 
 </body>
