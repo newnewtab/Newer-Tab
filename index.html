@@ -48,18 +48,39 @@ nav {
 
 .tabs {
   display: flex;
-  gap: 6px;
+  gap: 12px; /* Increased gap slightly for ribbons */
   flex: 1;
   align-items: center;
 }
 
+/* TAB CONTAINER */
 .tab {
+  position: relative; /* Needed to anchor the ribbon */
   padding: 6px 12px;
   border-radius: 8px;
   cursor: pointer;
+  background: transparent;
+  transition: background 0.2s;
+  font-weight: 500;
+  overflow: visible; /* Allows ribbon to pop out if needed */
 }
 
 .tab:hover { background: var(--bg-2); }
+
+/* RIBBON STYLE */
+.ribbon {
+  position: absolute;
+  top: -8px;
+  right: -5px;
+  padding: 2px 6px;
+  font-size: 9px;
+  font-weight: 800;
+  color: white;
+  text-transform: uppercase;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  pointer-events: none; /* Don't block clicks */
+}
 
 #viewer {
   position: fixed;
@@ -192,23 +213,34 @@ function loadGame(name, url) {
 
 function build() {
   tabs.innerHTML = "";
-  // Check if PAGES exists from games.js
   if(typeof PAGES !== 'undefined'){
-    Object.entries(PAGES).forEach(([name, url]) => {
+    Object.entries(PAGES).forEach(([name, data]) => {
+      // Check if data is an object (new format) or string (old format)
+      const url = typeof data === 'string' ? data : data.url;
+      const ribbonText = data.ribbon || null;
+      const ribbonColor = data.ribbonColor || "#38bdf8";
+
       const tab = document.createElement("div");
       tab.className = "tab";
       tab.textContent = name;
       tab.onclick = () => loadGame(name, url);
+
+      // Add Ribbon if text exists
+      if (ribbonText) {
+        const ribbon = document.createElement("span");
+        ribbon.className = "ribbon";
+        ribbon.textContent = ribbonText;
+        ribbon.style.backgroundColor = ribbonColor;
+        tab.appendChild(ribbon);
+      }
+
       tabs.appendChild(tab);
     });
   }
 }
 build();
 
-/* =========================
-   NEW POPUP LOGIC
-========================= */
-
+/* POPUP LOGIC */
 const emailPopup = document.getElementById("emailPopup");
 const yesBtn = document.getElementById("yesBtn");
 const noBtn = document.getElementById("noBtn");
@@ -216,9 +248,7 @@ const noBtn = document.getElementById("noBtn");
 const FORM_LINK = "https://forms.gle/TUeMfjBxiSW6xQru9";
 const STORAGE_KEY = "email_prompt_dismissed";
 
-// Check local storage
 if (!localStorage.getItem(STORAGE_KEY)) {
-  // Show with small delay for animation effect
   setTimeout(() => {
     emailPopup.classList.add('active');
     startNoTimer();
@@ -228,22 +258,18 @@ if (!localStorage.getItem(STORAGE_KEY)) {
 function hideAndSave() {
   emailPopup.classList.remove('active');
   localStorage.setItem(STORAGE_KEY, "true");
-  // Remove from DOM after transition to allow clicks underneath
   setTimeout(() => emailPopup.style.display = "none", 500);
 }
 
-// YES Button
 yesBtn.addEventListener("click", () => {
   window.open(FORM_LINK, '_blank');
   hideAndSave();
 });
 
-// NO Button
 noBtn.addEventListener("click", () => {
   hideAndSave();
 });
 
-// Timer for NO button
 function startNoTimer() {
   let timeLeft = 5;
   const timerInterval = setInterval(() => {
