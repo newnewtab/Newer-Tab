@@ -1,7 +1,7 @@
 window.PAGES = {
   
   "Minecraft": { 
-    "url": "https://glennfb83.github.io/ec/"
+    "url": "https://glennfb83.github.io/ec/",
     "ribbon": "New", 
     "ribbonColor": "#0096FF"
   },
