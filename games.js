@@ -18,6 +18,12 @@ window.PAGES = {
     "ribbonColor": "#008000" 
   },
 
+  "Subway Surfers": { 
+    "url": "https://arcadeclash.github.io/subway-surfers-unblocked/",
+    "ribbon": "New", 
+    "ribbonColor": "#0096FF"
+  },
+
   "Moto X3M 2": { 
     "url": "https://newnewtab.github.io/Moto-X3M-2/" 
   },
@@ -45,9 +51,7 @@ window.PAGES = {
   },
 
    "Flappy Bird": { 
-    "url": "https://newnewtab.github.io/flappy-bird/", 
-    "ribbon": "New", 
-    "ribbonColor": "#0096FF" 
+    "url": "https://newnewtab.github.io/flappy-bird/"
   },
   
   "Retro Bowl": { 
