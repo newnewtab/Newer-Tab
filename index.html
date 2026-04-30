@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-1XQJN7ZWG6"></script>
+<script async src="https://googletagmanager.com"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
@@ -38,6 +38,88 @@ body {
   overflow: hidden;
 }
 
+/* FULLSCREEN BLACKOUT POPUP */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: #000000; /* Pure black */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease;
+}
+
+.overlay.active { 
+  opacity: 1; 
+  visibility: visible; 
+}
+
+.overlay-content {
+  text-align: center;
+  max-width: 900px;
+  padding: 40px;
+  width: 100%;
+}
+
+.overlay-content h1 {
+  color: #ffffff;
+  font-size: clamp(2rem, 8vw, 4rem); /* Large white text responsive */
+  font-weight: 800;
+  margin-bottom: 50px;
+  line-height: 1.1;
+  letter-spacing: -2px;
+}
+
+.overlay-btns {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 25px;
+}
+
+.btn-yes {
+  background: #ffffff;
+  color: #000000;
+  padding: 24px 80px;
+  font-size: 1.5rem;
+  font-weight: 900;
+  border-radius: 100px;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  max-width: 400px;
+  transition: transform 0.2s, background-color 0.2s;
+  text-transform: uppercase;
+}
+
+.btn-yes:hover {
+  transform: scale(1.05);
+  background: #f0f0f0;
+}
+
+.btn-no {
+  background: transparent;
+  color: #666666; /* Smaller gray button */
+  padding: 10px 20px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.btn-no:hover:not(:disabled) {
+  color: #999999;
+}
+
+.btn-no:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
 /* NAVBAR */
 nav {
   position: fixed;
@@ -63,7 +145,6 @@ nav {
 .title { font-weight: 800; font-size: 18px; letter-spacing: -0.5px; }
 .status { font-size: 11px; color: var(--accent); font-weight: 600; text-transform: uppercase; }
 
-/* TABS CONTAINER */
 .tabs-wrapper {
   display: flex;
   align-items: center;
@@ -102,7 +183,6 @@ nav {
   font-weight: 700;
 }
 
-/* DROPDOWN */
 .dropdown {
   position: relative;
   display: none; 
@@ -140,7 +220,6 @@ nav {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* RIBBONS */
 .ribbon {
   position: absolute;
   top: -6px;
@@ -156,7 +235,6 @@ nav {
   pointer-events: none;
 }
 
-/* IFRAME */
 #viewer {
   position: fixed;
   top: var(--nav-height);
@@ -166,33 +244,6 @@ nav {
   border: none;
   background: #000;
 }
-
-/* POPUP */
-.overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(2, 6, 23, 0.95);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  opacity: 0;
-  visibility: hidden;
-  transition: 0.4s ease;
-}
-.overlay.active { opacity: 1; visibility: visible; }
-.overlay-content {
-  background: #1e293b;
-  padding: 40px;
-  border-radius: 24px;
-  max-width: 500px;
-  border: 1px solid var(--border);
-  text-align: center;
-}
-.overlay-btns { display: flex; gap: 12px; margin-top: 30px; justify-content: center; }
-.btn-choice { padding: 12px 28px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; transition: 0.2s; }
-.btn-yes { background: var(--accent); color: #000; }
-.btn-no { background: transparent; border: 1px solid var(--border); color: var(--muted); }
 </style>
 </head>
 
@@ -200,11 +251,10 @@ nav {
 
 <div id="emailPopup" class="overlay">
   <div class="overlay-content">
-    <h2 style="margin-top:0">Update Notification</h2>
-    <p style="color: var(--muted)">Want a link emailed to you when this site gets blocked?</p>
+    <h1>Would you like to be sent the new URL when this site is blocked?</h1>
     <div class="overlay-btns">
-      <button id="yesBtn" class="btn-choice btn-yes">Yes, notify me</button>
-      <button id="noBtn" class="btn-choice btn-no" disabled>No (5)</button>
+      <button id="yesBtn" class="btn-yes">YES</button>
+      <button id="noBtn" class="btn-no" disabled>No (5)</button>
     </div>
   </div>
 </div>
@@ -242,11 +292,9 @@ function loadGame(name, url, element) {
   iframe.src = url;
   statusText.textContent = `${name}`;
   
-  // Update active state
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   element.classList.add('active');
   
-  // Close dropdown if a game inside it was clicked
   moreDropdown.classList.remove('open');
 }
 
@@ -289,7 +337,6 @@ function toggleDropdown() {
   moreDropdown.classList.toggle('open');
 }
 
-// Close menu when clicking away
 window.addEventListener('click', (e) => {
   if (!e.target.closest('#moreDropdown')) moreDropdown.classList.remove('open');
 });
@@ -324,7 +371,6 @@ function dismiss() {
 yesBtn.onclick = () => { window.open(FORM_LINK, '_blank'); dismiss(); };
 noBtn.onclick = dismiss;
 
-// Initial Build
 build();
 </script>
 
