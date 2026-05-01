@@ -29,15 +29,19 @@ window.PAGES = {
   },
 
   "Minecraft": { 
-    "url": "https://glennfb83.github.io/ec/",
-    "ribbon": "New", 
-    "ribbonColor": "#0096FF"
+    "url": "https://glennfb83.github.io/ec/"
   },
   
   "Rocket League 3D": { 
     "url": "https://newnewtab.github.io/RL3D/" 
   },
 
+  "Slope 2": { 
+    "url": "https://newnewtab.github.io/Slope2/",
+    "ribbon": "New", 
+    "ribbonColor": "#0096FF"
+  },
+  
   "Geometry Dash": { 
     "url": "https://threekho.github.io/gdl/" 
   },
@@ -59,9 +63,7 @@ window.PAGES = {
   },
 
   "Five Nights at Epstiens": { 
-    "url": "https://newnewtab.github.io/FNAE-4-1-26/", 
-    "ribbon": "Popular", 
-    "ribbonColor": "#FFD700" 
+    "url": "https://newnewtab.github.io/FNAE-4-1-26/"
   },
   
   "Slots": { 
