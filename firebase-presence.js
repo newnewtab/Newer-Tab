@@ -1,0 +1,101 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import {
+  getDatabase,
+  ref,
+  onValue,
+  onDisconnect,
+  set,
+  remove,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAk9fMAWy6AS4o2s5n5zSJj0M0GlJoyIWE",
+  authDomain: "new-tab-2-d6042.firebaseapp.com",
+  databaseURL: "https://new-tab-2-d6042-default-rtdb.firebaseio.com",
+  projectId: "new-tab-2-d6042",
+  storageBucket: "new-tab-2-d6042.firebasestorage.app",
+  messagingSenderId: "347559506222",
+  appId: "1:347559506222:web:e854997d9048686b988abf"
+};
+
+const SESSION_ID_KEY = "game_hoster_session_id";
+const SESSION_ID = getSessionId();
+const isConfigured = !Object.values(firebaseConfig).some((value) => value.includes("PASTE_YOUR"));
+
+if (!isConfigured) {
+  console.warn("Add your Firebase web app config in firebase-presence.js to enable live player counts.");
+}
+
+const app = isConfigured ? initializeApp(firebaseConfig) : null;
+const database = app ? getDatabase(app) : null;
+
+let activeGameId = null;
+let activePresenceRef = null;
+
+function getSessionId() {
+  let id = sessionStorage.getItem(SESSION_ID_KEY);
+
+  if (!id) {
+    id = crypto.randomUUID();
+    sessionStorage.setItem(SESSION_ID_KEY, id);
+  }
+
+  return id;
+}
+
+function gameIdFromName(name) {
+  return name
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "") || "game";
+}
+
+function setActiveGame(name) {
+  if (!database) return;
+
+  const gameId = gameIdFromName(name);
+
+  if (gameId === activeGameId) return;
+
+  if (activePresenceRef) {
+    remove(activePresenceRef);
+  }
+
+  activeGameId = gameId;
+  activePresenceRef = ref(database, `gamePresence/${gameId}/players/${SESSION_ID}`);
+
+  onDisconnect(activePresenceRef).remove();
+
+  set(activePresenceRef, {
+    game: name,
+    joinedAt: serverTimestamp(),
+    lastSeenAt: serverTimestamp()
+  });
+}
+
+function watchGameCounts() {
+  if (!database) return;
+
+  const countsRef = ref(database, "gamePresence");
+
+  onValue(countsRef, (snapshot) => {
+    const counts = {};
+
+    snapshot.forEach((gameSnapshot) => {
+      counts[gameSnapshot.key] = gameSnapshot.child("players").size;
+    });
+
+    document.querySelectorAll("[data-player-count-for]").forEach((badge) => {
+      const gameId = gameIdFromName(badge.dataset.playerCountFor);
+      badge.textContent = counts[gameId] || "0";
+    });
+  });
+}
+
+window.gamePresence = {
+  setActiveGame
+};
+
+watchGameCounts();
