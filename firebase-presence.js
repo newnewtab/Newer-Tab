@@ -89,7 +89,13 @@ function watchGameCounts() {
 
     document.querySelectorAll("[data-player-count-for]").forEach((badge) => {
       const gameId = gameIdFromName(badge.dataset.playerCountFor);
-      badge.textContent = counts[gameId] || "0";
+      const playerCount = counts[gameId] || 0;
+
+      badge.textContent = playerCount > 0 ? playerCount : "";
+      badge.classList.toggle("has-players", playerCount > 0);
+      badge.title = playerCount > 0
+        ? `${playerCount} player${playerCount === 1 ? "" : "s"} online`
+        : "No players online";
     });
   });
 }
