@@ -4,6 +4,8 @@ import {
   ref,
   onValue,
   onDisconnect,
+  goOffline,
+  goOnline,
   set,
   remove,
   serverTimestamp
@@ -31,7 +33,11 @@ const app = isConfigured ? initializeApp(firebaseConfig) : null;
 const database = app ? getDatabase(app) : null;
 
 let activeGameId = null;
+let activeGameName = null;
 let activePresenceRef = null;
+let activeDisconnectRef = null;
+let unsubscribeCounts = null;
+let isOnline = false;
 
 function getSessionId() {
   let id = sessionStorage.getItem(SESSION_ID_KEY);
@@ -56,31 +62,37 @@ function setActiveGame(name) {
   if (!database) return;
 
   const gameId = gameIdFromName(name);
+  activeGameName = name;
+
+  if (document.visibilityState === "hidden") return;
 
   if (gameId === activeGameId) return;
 
-  if (activePresenceRef) {
-    remove(activePresenceRef);
-  }
+  clearActivePresence({ cancelDisconnect: true });
+  connectDatabase();
 
   activeGameId = gameId;
   activePresenceRef = ref(database, `gamePresence/${gameId}/players/${SESSION_ID}`);
+  activeDisconnectRef = onDisconnect(activePresenceRef);
 
-  onDisconnect(activePresenceRef).remove();
+  activeDisconnectRef.remove().catch(() => {});
 
   set(activePresenceRef, {
     game: name,
     joinedAt: serverTimestamp(),
     lastSeenAt: serverTimestamp()
-  });
+  }).catch(() => {});
 }
 
 function watchGameCounts() {
   if (!database) return;
+  if (unsubscribeCounts) return;
+
+  connectDatabase();
 
   const countsRef = ref(database, "gamePresence");
 
-  onValue(countsRef, (snapshot) => {
+  unsubscribeCounts = onValue(countsRef, (snapshot) => {
     const counts = {};
 
     snapshot.forEach((gameSnapshot) => {
@@ -100,8 +112,68 @@ function watchGameCounts() {
   });
 }
 
+function connectDatabase() {
+  if (!database || isOnline) return;
+
+  goOnline(database);
+  isOnline = true;
+}
+
+function clearActivePresence({ cancelDisconnect = false } = {}) {
+  if (activeDisconnectRef && cancelDisconnect) {
+    activeDisconnectRef.cancel().catch(() => {});
+    activeDisconnectRef = null;
+  }
+
+  if (activePresenceRef) {
+    remove(activePresenceRef).catch(() => {});
+    activePresenceRef = null;
+  }
+
+  activeDisconnectRef = null;
+  activeGameId = null;
+}
+
+function stopWatchingGameCounts() {
+  if (!unsubscribeCounts) return;
+
+  unsubscribeCounts();
+  unsubscribeCounts = null;
+}
+
+function disconnectDatabase() {
+  if (!database || !isOnline) return;
+
+  stopWatchingGameCounts();
+  clearActivePresence();
+  goOffline(database);
+  isOnline = false;
+}
+
+function resumeDatabase() {
+  if (!database || document.visibilityState === "hidden") return;
+
+  watchGameCounts();
+
+  if (activeGameName) {
+    setActiveGame(activeGameName);
+  }
+}
+
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "hidden") {
+    disconnectDatabase();
+  } else {
+    resumeDatabase();
+  }
+});
+
+window.addEventListener("pagehide", disconnectDatabase);
+window.addEventListener("beforeunload", disconnectDatabase);
+
 window.gamePresence = {
-  setActiveGame
+  setActiveGame,
+  disconnect: disconnectDatabase
 };
 
-watchGameCounts();
+resumeDatabase();
