@@ -170,6 +170,9 @@ nav {
   white-space: nowrap;
   font-size: 14px;
   color: var(--muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .tab:hover {
@@ -181,6 +184,22 @@ nav {
   background: var(--accent);
   color: #000;
   font-weight: 700;
+}
+
+.tab-player-count {
+  min-width: 22px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  color: currentColor;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.tab.active .tab-player-count {
+  background: rgba(0, 0, 0, 0.18);
 }
 
 .dropdown {
@@ -278,6 +297,7 @@ nav {
 
 <!-- Loading your external JS file -->
 <script src="games.js"></script>
+<script type="module" src="firebase-presence.js"></script>
 
 <script>
 const tabsMain = document.getElementById("tabsMain");
@@ -296,6 +316,8 @@ function loadGame(name, url, element) {
   element.classList.add('active');
   
   moreDropdown.classList.remove('open');
+
+  window.gamePresence?.setActiveGame(name);
 }
 
 function build() {
@@ -313,7 +335,19 @@ function build() {
 
     const tab = document.createElement("div");
     tab.className = "tab";
-    tab.textContent = name;
+    tab.dataset.gameName = name;
+
+    const tabName = document.createElement("span");
+    tabName.textContent = name;
+    tab.appendChild(tabName);
+
+    const playerCount = document.createElement("span");
+    playerCount.className = "tab-player-count";
+    playerCount.dataset.playerCountFor = name;
+    playerCount.textContent = "0";
+    playerCount.title = "Players online";
+    tab.appendChild(playerCount);
+
     tab.onclick = () => loadGame(name, url, tab);
 
     if (ribbonText) {
