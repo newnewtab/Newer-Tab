@@ -13,9 +13,7 @@ window.PAGES = {
   },
   
   "Basket Bros": { 
-    "url": "https://vexacloud-assets.github.io/basket-bros/",
-    "ribbon": "Unblocked", 
-    "ribbonColor": "#008000" 
+    "url": "https://vexacloud-assets.github.io/basket-bros/"
   },
 
   "Subway Surfers": { 
