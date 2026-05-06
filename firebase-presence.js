@@ -12,7 +12,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAk9fMAWy6AS4o2s5n5zSJj0M0GlJoyIWE",
+  apiKey: "AIzaSyAk9fMAWy6AS4o2s5n5zSJj0M0GlJoyIWE", //keep this on the low :)
   authDomain: "new-tab-2-d6042.firebaseapp.com",
   databaseURL: "https://new-tab-2-d6042-default-rtdb.firebaseio.com",
   projectId: "new-tab-2-d6042",
