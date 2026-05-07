@@ -42,7 +42,7 @@ body {
 .overlay {
   position: fixed;
   inset: 0;
-  background: #000000; /* Pure black */
+  background: #000000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -52,9 +52,9 @@ body {
   transition: opacity 0.3s ease;
 }
 
-.overlay.active { 
-  opacity: 1; 
-  visibility: visible; 
+.overlay.active {
+  opacity: 1;
+  visibility: visible;
 }
 
 .overlay-content {
@@ -66,7 +66,7 @@ body {
 
 .overlay-content h1 {
   color: #ffffff;
-  font-size: clamp(2rem, 8vw, 4rem); /* Large white text responsive */
+  font-size: clamp(2rem, 8vw, 4rem);
   font-weight: 800;
   margin-bottom: 50px;
   line-height: 1.1;
@@ -102,7 +102,7 @@ body {
 
 .btn-no {
   background: transparent;
-  color: #666666; /* Smaller gray button */
+  color: #666666;
   padding: 10px 20px;
   font-size: 1.1rem;
   font-weight: 600;
@@ -142,15 +142,25 @@ nav {
   margin-right: 30px;
 }
 
-.title { font-weight: 800; font-size: 18px; letter-spacing: -0.5px; }
-.status { font-size: 11px; color: var(--accent); font-weight: 600; text-transform: uppercase; }
+.title {
+  font-weight: 800;
+  font-size: 18px;
+  letter-spacing: -0.5px;
+}
+
+.status {
+  font-size: 11px;
+  color: var(--accent);
+  font-weight: 600;
+  text-transform: uppercase;
+}
 
 .tabs-wrapper {
   display: flex;
   align-items: center;
   gap: 8px;
   flex: 1;
-  overflow: visible; 
+  overflow: visible;
 }
 
 .tabs-main {
@@ -218,7 +228,7 @@ nav {
 
 .dropdown {
   position: relative;
-  display: none; 
+  display: none;
 }
 
 .dropdown-trigger {
@@ -246,11 +256,21 @@ nav {
   gap: 4px;
 }
 
-.dropdown.open .dropdown-menu { display: flex; animation: slideIn 0.2s ease-out; }
+.dropdown.open .dropdown-menu {
+  display: flex;
+  animation: slideIn 0.2s ease-out;
+}
 
 @keyframes slideIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .ribbon {
@@ -297,7 +317,7 @@ nav {
     <div class="title">New Tab 2</div>
     <div id="status" class="status">Idle</div>
   </div>
-  
+
   <div class="tabs-wrapper">
     <div class="tabs-main" id="tabsMain"></div>
     <div class="dropdown" id="moreDropdown">
@@ -309,7 +329,6 @@ nav {
 
 <iframe id="viewer"></iframe>
 
-<!-- Loading your external JS file -->
 <script src="games.js"></script>
 <script type="module" src="firebase-presence.js"></script>
 
@@ -322,31 +341,57 @@ const iframe = document.getElementById("viewer");
 
 const MAX_VISIBLE = 9;
 
+function getGameData(data) {
+  if (typeof data === "string") {
+    return {
+      url: data,
+      order: null,
+      ribbon: null,
+      ribbonColor: null
+    };
+  }
+
+  return {
+    url: data.url,
+    order: data.order,
+    ribbon: data.ribbon || data.ribbonText || data.badge || data.tag || null,
+    ribbonColor: data.ribbonColor || data.badgeColor || data.tagColor || "var(--accent)"
+  };
+}
+
 function loadGame(name, url, element) {
   iframe.src = url;
   statusText.textContent = `${name}`;
-  
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  element.classList.add('active');
-  
-  moreDropdown.classList.remove('open');
+
+  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+  element.classList.add("active");
+
+  moreDropdown.classList.remove("open");
 
   window.gamePresence?.setActiveGame(name);
 }
 
 function build() {
-  if (typeof PAGES === 'undefined') return;
-  
+  if (typeof PAGES === "undefined") return;
+
   tabsMain.innerHTML = "";
   tabsMore.innerHTML = "";
-  
-  const entries = Object.entries(PAGES);
-  
-  entries.forEach(([name, data], index) => {
-    const url = typeof data === 'string' ? data : data.url;
-    const ribbonText = data.ribbon || null;
-    const ribbonColor = data.ribbonColor || "var(--accent)";
+  moreDropdown.style.display = "none";
 
+  const entries = Object.entries(PAGES)
+    .map(([name, data], originalIndex) => {
+      const game = getGameData(data);
+
+      return {
+        name,
+        data: game,
+        originalIndex,
+        order: Number.isFinite(game.order) ? game.order : originalIndex
+      };
+    })
+    .sort((a, b) => a.order - b.order || a.originalIndex - b.originalIndex);
+
+  entries.forEach(({ name, data }, index) => {
     const tab = document.createElement("div");
     tab.className = "tab";
     tab.dataset.gameName = name;
@@ -363,13 +408,13 @@ function build() {
     playerCount.title = "Players online";
     tab.appendChild(playerCount);
 
-    tab.onclick = () => loadGame(name, url, tab);
+    tab.onclick = () => loadGame(name, data.url, tab);
 
-    if (ribbonText) {
+    if (data.ribbon) {
       const ribbon = document.createElement("span");
       ribbon.className = "ribbon";
-      ribbon.textContent = ribbonText;
-      ribbon.style.backgroundColor = ribbonColor;
+      ribbon.textContent = data.ribbon;
+      ribbon.style.backgroundColor = data.ribbonColor;
       tab.appendChild(ribbon);
     }
 
@@ -383,11 +428,13 @@ function build() {
 }
 
 function toggleDropdown() {
-  moreDropdown.classList.toggle('open');
+  moreDropdown.classList.toggle("open");
 }
 
-window.addEventListener('click', (e) => {
-  if (!e.target.closest('#moreDropdown')) moreDropdown.classList.remove('open');
+window.addEventListener("click", (e) => {
+  if (!e.target.closest("#moreDropdown")) {
+    moreDropdown.classList.remove("open");
+  }
 });
 
 /* POPUP LOGIC */
@@ -398,12 +445,15 @@ const FORM_LINK = "https://docs.google.com/forms/d/e/1FAIpQLSc_Z4B0MP1d0rs0b_KwG
 
 if (!localStorage.getItem("email_prompt_dismissed")) {
   setTimeout(() => {
-    emailPopup.classList.add('active');
+    emailPopup.classList.add("active");
+
     let count = 5;
     const timer = setInterval(() => {
       count--;
-      if (count > 0) noBtn.textContent = `No (${count})`;
-      else {
+
+      if (count > 0) {
+        noBtn.textContent = `No (${count})`;
+      } else {
         noBtn.textContent = "No";
         noBtn.disabled = false;
         clearInterval(timer);
@@ -413,11 +463,15 @@ if (!localStorage.getItem("email_prompt_dismissed")) {
 }
 
 function dismiss() {
-  emailPopup.classList.remove('active');
+  emailPopup.classList.remove("active");
   localStorage.setItem("email_prompt_dismissed", "true");
 }
 
-yesBtn.onclick = () => { window.open(FORM_LINK, '_blank'); dismiss(); };
+yesBtn.onclick = () => {
+  window.open(FORM_LINK, "_blank");
+  dismiss();
+};
+
 noBtn.onclick = dismiss;
 
 build();
@@ -425,3 +479,4 @@ build();
 
 </body>
 </html>
+```
