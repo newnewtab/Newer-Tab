@@ -65,6 +65,8 @@ window.PAGES = {
   },
   
   "Slots": { 
-    "url": "https://newnewtab.github.io/Slot-Machine/" 
+    "url": "https://newnewtab.github.io/Slot-Machine/",
+    "ribbon": "Updated", 
+    "ribbonColor": "#0000FF"
   }
 };
