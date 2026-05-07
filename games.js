@@ -34,6 +34,12 @@ window.PAGES = {
     "url": "https://newnewtab.github.io/RL3D/" 
   },
 
+  "Slots": { 
+    "url": "https://newnewtab.github.io/Slot-Machine/",
+    "ribbon": "Updated", 
+    "ribbonColor": "#0000FF"
+  },
+    
   "Slope 2": { 
     "url": "https://newnewtab.github.io/Slope2/",
     "ribbon": "New", 
@@ -62,11 +68,6 @@ window.PAGES = {
 
   "Five Nights at Epstiens": { 
     "url": "https://newnewtab.github.io/FNAE-4-1-26/"
-  },
-  
-  "Slots": { 
-    "url": "https://newnewtab.github.io/Slot-Machine/",
-    "ribbon": "Updated", 
-    "ribbonColor": "#0000FF"
   }
+  
 };
