@@ -37,7 +37,7 @@ window.PAGES = {
   "Slots": { 
     "url": "https://newnewtab.github.io/Slot-Machine/",
     "ribbon": "Updated", 
-    "ribbonColor": "#0000FF"
+    "ribbonColor": "#FFC0CB"
   },
     
   "Slope 2": { 
