@@ -29,6 +29,12 @@ window.PAGES = {
   "Minecraft": { 
     "url": "https://glennfb83.github.io/ec/"
   },
+
+  "Police Pursuit 2 ": { 
+    "url": "https://vaxtangi1980.github.io/purssssss/",
+    "ribbon": "New", 
+    "ribbonColor": "#0096FF"
+  },
   
   "Rocket League 3D": { 
     "url": "https://newnewtab.github.io/RL3D/" 
@@ -37,7 +43,7 @@ window.PAGES = {
   "Slots": { 
     "url": "https://newnewtab.github.io/Slot-Machine/",
     "ribbon": "Updated", 
-    "ribbonColor": "#FFC0CB"
+    "ribbonColor": "#FF007F"
   },
     
   "Slope 2": { 
@@ -66,7 +72,7 @@ window.PAGES = {
     "url": "https://newnewtab.github.io/rb/" 
   },
 
-  "Five Nights at Epstiens": { 
+  "Five Nights at Epsteins": { 
     "url": "https://newnewtab.github.io/FNAE-4-1-26/"
   }
   
