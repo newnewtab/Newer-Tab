@@ -18,8 +18,8 @@ window.PAGES = {
 
   "Cookie Clicker": {
     "url": "https://newnewtab.github.io/Cookie-Clicker/",
-    "ribbon": "New", 
-    "ribbonColor": "#0096FF"
+    "ribbon": "Test", 
+    "ribbonColor": "#EE7E99"
   },
   
   "Subway Surfers": { 
