@@ -161,7 +161,12 @@ function setupChat() {
 
   chatName.value = cleanName(localStorage.getItem(CHAT_NAME_KEY) || "");
 
-  chatToggle.addEventListener("click", toggleChat);
+  document.addEventListener("siteChatToggled", (event) => {
+    if (event.detail?.open) {
+      watchChatMessages();
+    }
+  });
+
   chatName.addEventListener("input", () => {
     localStorage.setItem(CHAT_NAME_KEY, cleanName(chatName.value));
   });
@@ -175,20 +180,9 @@ function setupChat() {
     chatSend.disabled = true;
     chatInput.placeholder = "Chat needs Firebase first";
   }
-}
 
-function toggleChat() {
-  const willOpen = !siteChat.classList.contains("open");
-
-  siteChat.classList.toggle("open", willOpen);
-  chatToggle.classList.toggle("open", willOpen);
-  chatToggle.textContent = willOpen ? "›" : "‹";
-  chatToggle.setAttribute("aria-label", willOpen ? "Close chat" : "Open chat");
-  chatToggle.title = willOpen ? "Close chat" : "Open chat";
-
-  if (willOpen) {
+  if (siteChat.classList.contains("open")) {
     watchChatMessages();
-    chatInput?.focus();
   }
 }
 
