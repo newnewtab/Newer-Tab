@@ -30,6 +30,7 @@ const CHAT_NAME_KEY = "site_chat_name";
 const CHAT_MESSAGE_LIMIT = 40;
 const MAX_MESSAGE_LENGTH = 240;
 const MAX_NAME_LENGTH = 24;
+const CHAT_ENABLED = window.CHAT_ENABLED !== false;
 
 // Customize these two lists for your chat filter.
 const CENSOR_WORDS = [
@@ -154,6 +155,10 @@ function updateActiveUsers(totalPlayers) {
 
   chatActiveUsers.textContent = `${totalPlayers} active`;
   chatActiveUsers.title = `${totalPlayers} active user${totalPlayers === 1 ? "" : "s"} across games`;
+
+  document.dispatchEvent(new CustomEvent("siteActiveUsersChanged", {
+    detail: { total: totalPlayers }
+  }));
 }
 
 function setupChat() {
@@ -171,14 +176,13 @@ function setupChat() {
     localStorage.setItem(CHAT_NAME_KEY, cleanName(chatName.value));
   });
 
-  chatForm.addEventListener("submit", (event) => {
-    event.preventDefault();
+  document.addEventListener("siteChatSubmit", () => {
     sendChatMessage();
   });
 
-  if (!database && chatSend) {
+  if ((!database || !CHAT_ENABLED) && chatSend) {
     chatSend.disabled = true;
-    chatInput.placeholder = "Chat needs Firebase first";
+    chatInput.placeholder = CHAT_ENABLED ? "Chat needs Firebase first" : "Chat disabled";
   }
 
   if (siteChat.classList.contains("open")) {
@@ -187,6 +191,7 @@ function setupChat() {
 }
 
 function watchChatMessages() {
+  if (!CHAT_ENABLED) return;
   if (!database || unsubscribeChat) return;
 
   connectDatabase();
@@ -241,6 +246,7 @@ function renderMessage(key, message) {
 }
 
 function sendChatMessage() {
+  if (!CHAT_ENABLED) return;
   if (!database || !chatInput || !chatName) return;
 
   const rawText = chatInput.value.trim();
