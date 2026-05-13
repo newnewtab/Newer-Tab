@@ -17,13 +17,17 @@ window.PAGES = {
   },
 
   "Subway Surfers": { 
-    "url": "https://arcadeclash.github.io/subway-surfers-unblocked/",
-    "ribbon": "New", 
-    "ribbonColor": "#0096FF"
+    "url": "https://arcadeclash.github.io/subway-surfers-unblocked/"
   },
 
   "Moto X3M 2": { 
     "url": "https://newnewtab.github.io/Moto-X3M-2/" 
+  },
+
+  "Gunspin": {
+    "url": "https://newnewtab.github.io/Gunspin/",
+    "ribbon": "New", 
+    "ribbonColor": "#0096FF"
   },
 
   "Minecraft": { 
@@ -41,15 +45,11 @@ window.PAGES = {
   },
 
   "Slots": { 
-    "url": "https://newnewtab.github.io/Slot-Machine/",
-    "ribbon": "Updated", 
-    "ribbonColor": "#FF007F"
+    "url": "https://newnewtab.github.io/Slot-Machine/"
   },
     
   "Slope 2": { 
-    "url": "https://newnewtab.github.io/Slope2/",
-    "ribbon": "New", 
-    "ribbonColor": "#0096FF"
+    "url": "https://newnewtab.github.io/Slope2/"
   },
   
   "Geometry Dash": { 
