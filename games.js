@@ -16,8 +16,14 @@ window.PAGES = {
     "url": "https://vexacloud-assets.github.io/basket-bros/"
   },
 
+  "Cookie Clicker": {
+    "url": "https://newnewtab.github.io/Cookie-Clicker/",
+    "ribbon": "New", 
+    "ribbonColor": "#0096FF"
+  },
+  
   "Subway Surfers": { 
-    "url": "https://arcadeclash.github.io/subway-surfers-unblocked/"
+    "url": "https://arcadeclash.github.io/subway-surfers-unblocked/" 
   },
 
   "Moto X3M 2": { 
