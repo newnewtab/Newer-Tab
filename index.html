@@ -434,6 +434,17 @@ nav {
   max-width: 240px;
 }
 
+.chat-disabled-notice {
+  margin: auto;
+  max-width: 280px;
+  text-align: center;
+  color: #fecaca;
+  font-size: 30px;
+  font-weight: 900;
+  line-height: 1.12;
+  text-transform: uppercase;
+}
+
 .chat-message {
   display: grid;
   gap: 5px;
@@ -575,6 +586,9 @@ nav {
 </aside>
 
 <script src="games.js"></script>
+<script>
+window.CHAT_ENABLED = true;
+</script>
 <script type="module" src="firebase-presence.js"></script>
 
 <script>
@@ -586,8 +600,16 @@ const iframe = document.getElementById("viewer");
 const chatToggle = document.getElementById("chatToggle");
 const siteChat = document.getElementById("siteChat");
 const chatInput = document.getElementById("chatInput");
+const chatForm = document.getElementById("chatForm");
+const chatName = document.getElementById("chatName");
+const chatMessages = document.getElementById("chatMessages");
+const chatSend = document.getElementById("chatSend");
+const chatActiveUsers = document.getElementById("chatActiveUsers");
 
 const MAX_VISIBLE = 8;
+const CHAT_NAME_KEY = "site_chat_name";
+const CHAT_ENABLED = window.CHAT_ENABLED !== false;
+let latestFirebaseActiveUsers = null;
 
 function getGameData(data) {
   if (typeof data === "string") {
@@ -697,6 +719,92 @@ function setChatOpen(isOpen) {
 
 chatToggle.addEventListener("click", () => {
   setChatOpen(!siteChat.classList.contains("open"));
+});
+
+setChatOpen = function(isOpen) {
+  siteChat.classList.toggle("open", isOpen);
+  chatToggle.classList.toggle("open", isOpen);
+  chatToggle.textContent = isOpen ? ">" : "<";
+  chatToggle.setAttribute("aria-label", isOpen ? "Close chat" : "Open chat");
+  chatToggle.title = isOpen ? "Close chat" : "Open chat";
+
+  if (isOpen) {
+    updateChatPanelState();
+    updateActiveUsersFromBadges();
+  }
+
+  document.dispatchEvent(new CustomEvent("siteChatToggled", {
+    detail: { open: isOpen }
+  }));
+
+  if (isOpen && CHAT_ENABLED) {
+    chatInput.focus();
+  }
+};
+
+chatToggle.textContent = "<";
+chatSend.textContent = ">";
+chatName.value = localStorage.getItem(CHAT_NAME_KEY) || "";
+
+chatName.addEventListener("input", () => {
+  localStorage.setItem(CHAT_NAME_KEY, chatName.value.trim().slice(0, 24));
+});
+
+chatForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+
+  if (!CHAT_ENABLED) {
+    updateChatPanelState();
+    return;
+  }
+
+  document.dispatchEvent(new CustomEvent("siteChatSubmit"));
+});
+
+document.addEventListener("siteActiveUsersChanged", (event) => {
+  latestFirebaseActiveUsers = event.detail?.total || 0;
+  updateActiveUsers(latestFirebaseActiveUsers);
+});
+
+function updateChatPanelState() {
+  chatInput.disabled = !CHAT_ENABLED;
+  chatSend.disabled = !CHAT_ENABLED;
+
+  if (!CHAT_ENABLED) {
+    chatInput.placeholder = "Chat disabled";
+    chatMessages.innerHTML = '<div class="chat-disabled-notice">Chat Disabled</div>';
+    return;
+  }
+
+  if (!chatMessages.querySelector(".chat-message")) {
+    chatMessages.innerHTML = '<div class="chat-empty">Loading messages...</div>';
+  }
+}
+
+function updateActiveUsersFromBadges() {
+  const total = [...document.querySelectorAll("[data-player-count-for]")]
+    .reduce((sum, badge) => sum + (Number.parseInt(badge.textContent, 10) || 0), 0);
+
+  if (total > 0 || latestFirebaseActiveUsers === null) {
+    updateActiveUsers(total);
+  }
+}
+
+function updateActiveUsers(total) {
+  chatActiveUsers.textContent = `${total} active`;
+  chatActiveUsers.title = `${total} active user${total === 1 ? "" : "s"} across games`;
+}
+
+const activeUsersObserver = new MutationObserver(updateActiveUsersFromBadges);
+activeUsersObserver.observe(tabsMain, {
+  childList: true,
+  subtree: true,
+  characterData: true
+});
+activeUsersObserver.observe(tabsMore, {
+  childList: true,
+  subtree: true,
+  characterData: true
 });
 
 window.addEventListener("click", (e) => {
