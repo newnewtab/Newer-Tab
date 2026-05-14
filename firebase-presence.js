@@ -30,7 +30,7 @@ const CHAT_NAME_KEY = "site_chat_name";
 const CHAT_MESSAGE_LIMIT = 10;
 const MAX_MESSAGE_LENGTH = 180;
 const MAX_NAME_LENGTH = 12;
-const CHAT_ENABLED = window.CHAT_ENABLED !== true;
+const CHAT_ENABLED = window.CHAT_ENABLED !== false;
 
 const CENSOR_WORDS = [
   "nigger",
