@@ -29,25 +29,36 @@ const SESSION_ID = getSessionId();
 const CHAT_NAME_KEY = "site_chat_name";
 const CHAT_MESSAGE_LIMIT = 40;
 const MAX_MESSAGE_LENGTH = 240;
-const MAX_NAME_LENGTH = 24;
-const CHAT_ENABLED = window.CHAT_ENABLED !== false;
+const MAX_NAME_LENGTH = 12;
+const CHAT_ENABLED = window.CHAT_ENABLED !== true;
 
-// Customize these two lists for your chat filter.
 const CENSOR_WORDS = [
-  "badword",
-  "anotherbadword"
+  "nigger",
+  "nigga",
+  "faggot",
+  "fag",
+  "chink",
+  "retard"
+  "niggers",
+  "niggas",
+  "faggots",
+  "fags",
+  "chinks",
+  "retards"
 ];
 
 const CENSOR_REPLACEMENTS = [
-  "I need to rethink that message.",
-  "That got filtered.",
-  "Let's keep the chat clean."
+  "I hope you have a great day!",
+  "I wish your family the best!",
+  "You're a kind and loving person!",
+  "I hope all your pets go unharmed.",
+  "Download the dairy queen app and use code Clinga2210!"
 ];
 
 const isConfigured = !Object.values(firebaseConfig).some((value) => value.includes("PASTE_YOUR"));
 
 if (!isConfigured) {
-  console.warn("Add your Firebase web app config in firebase-presence.js to enable live player counts.");
+  console.warn("fix config error in firebase-presence.js to enable live player counts.");
 }
 
 const app = isConfigured ? initializeApp(firebaseConfig) : null;
