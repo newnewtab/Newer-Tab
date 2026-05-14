@@ -15,12 +15,6 @@ window.PAGES = {
   "Basket Bros": { 
     "url": "https://vexacloud-assets.github.io/basket-bros/"
   },
-
-  "Cookie Clicker": {
-    "url": "https://newnewtab.github.io/Cookie-Clicker/",
-    "ribbon": "Test", 
-    "ribbonColor": "#EE7E99"
-  },
   
   "Subway Surfers": { 
     "url": "https://arcadeclash.github.io/subway-surfers-unblocked/" 
