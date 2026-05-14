@@ -27,8 +27,8 @@ const firebaseConfig = {
 const SESSION_ID_KEY = "game_hoster_session_id";
 const SESSION_ID = getSessionId();
 const CHAT_NAME_KEY = "site_chat_name";
-const CHAT_MESSAGE_LIMIT = 40;
-const MAX_MESSAGE_LENGTH = 240;
+const CHAT_MESSAGE_LIMIT = 10;
+const MAX_MESSAGE_LENGTH = 180;
 const MAX_NAME_LENGTH = 12;
 const CHAT_ENABLED = window.CHAT_ENABLED !== true;
 
@@ -44,7 +44,8 @@ const CENSOR_WORDS = [
   "faggots",
   "fags",
   "chinks",
-  "retards"
+  "retards",
+  "badword"
 ];
 
 const CENSOR_REPLACEMENTS = [
