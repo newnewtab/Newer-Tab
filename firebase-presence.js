@@ -2,14 +2,18 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/fireba
 import {
   getDatabase,
   ref,
+  get,
   onValue,
   onDisconnect,
   push,
   query,
   limitToLast,
+  orderByChild,
+  endAt,
   goOffline,
   goOnline,
   set,
+  update,
   remove,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js";
@@ -30,6 +34,11 @@ const CHAT_NAME_KEY = "site_chat_name";
 const CHAT_MESSAGE_LIMIT = 10;
 const MAX_MESSAGE_LENGTH = 180;
 const MAX_NAME_LENGTH = 12;
+const CHAT_MESSAGE_TTL_MS = 6 * 60 * 60 * 1000;
+const CHAT_CLEANUP_INTERVAL_MS = 10 * 60 * 1000;
+const PRESENCE_HEARTBEAT_MS = 30 * 1000;
+const PRESENCE_STALE_MS = 2 * 60 * 1000;
+const PRESENCE_CLEANUP_INTERVAL_MS = 60 * 1000;
 const CHAT_ENABLED = window.CHAT_ENABLED !== false;
 
 const CENSOR_WORDS = [
@@ -38,14 +47,14 @@ const CENSOR_WORDS = [
   "faggot",
   "fag",
   "chink",
-  "retard"
+  "retard",
   "niggers",
   "niggas",
   "faggots",
   "fags",
   "chinks",
   "retards",
-  "badword"
+  "testcensor"
 ];
 
 const CENSOR_REPLACEMENTS = [
@@ -74,6 +83,9 @@ let unsubscribeChat = null;
 let isOnline = false;
 let chatLoaded = false;
 let latestRenderedMessageKey = null;
+let presenceHeartbeatTimer = null;
+let lastPresenceCleanupAt = 0;
+let lastChatCleanupAt = 0;
 
 const chatToggle = document.getElementById("chatToggle");
 const siteChat = document.getElementById("siteChat");
@@ -126,7 +138,7 @@ function setActiveGame(name) {
     game: name,
     joinedAt: serverTimestamp(),
     lastSeenAt: serverTimestamp()
-  }).catch(() => {});
+  }).then(startPresenceHeartbeat).catch(() => {});
 }
 
 function watchGameCounts() {
@@ -140,6 +152,8 @@ function watchGameCounts() {
   unsubscribeCounts = onValue(countsRef, (snapshot) => {
     const counts = {};
     let totalPlayers = 0;
+
+    cleanupStalePresence();
 
     snapshot.forEach((gameSnapshot) => {
       const playerCount = gameSnapshot.child("players").size;
@@ -171,6 +185,52 @@ function updateActiveUsers(totalPlayers) {
   document.dispatchEvent(new CustomEvent("siteActiveUsersChanged", {
     detail: { total: totalPlayers }
   }));
+}
+
+function startPresenceHeartbeat() {
+  stopPresenceHeartbeat();
+
+  presenceHeartbeatTimer = window.setInterval(() => {
+    if (!activePresenceRef || document.visibilityState === "hidden") return;
+
+    update(activePresenceRef, {
+      lastSeenAt: serverTimestamp()
+    }).catch(() => {});
+  }, PRESENCE_HEARTBEAT_MS);
+}
+
+function stopPresenceHeartbeat() {
+  if (!presenceHeartbeatTimer) return;
+
+  window.clearInterval(presenceHeartbeatTimer);
+  presenceHeartbeatTimer = null;
+}
+
+function cleanupStalePresence() {
+  if (!database) return;
+
+  const now = Date.now();
+  if (now - lastPresenceCleanupAt < PRESENCE_CLEANUP_INTERVAL_MS) return;
+  lastPresenceCleanupAt = now;
+
+  get(ref(database, "gamePresence")).then((snapshot) => {
+    if (!snapshot.exists()) return;
+
+    const cutoff = Date.now() - PRESENCE_STALE_MS;
+    const removals = [];
+
+    snapshot.forEach((gameSnapshot) => {
+      gameSnapshot.child("players").forEach((playerSnapshot) => {
+        const lastSeenAt = playerSnapshot.child("lastSeenAt").val();
+
+        if (typeof lastSeenAt === "number" && lastSeenAt < cutoff) {
+          removals.push(remove(playerSnapshot.ref).catch(() => {}));
+        }
+      });
+    });
+
+    return Promise.all(removals);
+  }).catch(() => {});
 }
 
 function setupChat() {
@@ -207,6 +267,7 @@ function watchChatMessages() {
   if (!database || unsubscribeChat) return;
 
   connectDatabase();
+  cleanupOldChatMessages();
 
   const messagesRef = query(ref(database, "siteChat/messages"), limitToLast(CHAT_MESSAGE_LIMIT));
 
@@ -278,9 +339,37 @@ function sendChatMessage() {
     text,
     sid: SESSION_ID,
     createdAt: serverTimestamp()
+  }).then(() => {
+    cleanupOldChatMessages();
   }).catch(() => {
     chatInput.value = rawText;
   });
+}
+
+function cleanupOldChatMessages() {
+  if (!database || !CHAT_ENABLED) return;
+
+  const now = Date.now();
+  if (now - lastChatCleanupAt < CHAT_CLEANUP_INTERVAL_MS) return;
+  lastChatCleanupAt = now;
+
+  const cutoff = now - CHAT_MESSAGE_TTL_MS;
+  const oldMessagesRef = query(
+    ref(database, "siteChat/messages"),
+    orderByChild("createdAt"),
+    endAt(cutoff)
+  );
+
+  get(oldMessagesRef).then((snapshot) => {
+    if (!snapshot.exists()) return;
+
+    const removals = [];
+    snapshot.forEach((messageSnapshot) => {
+      removals.push(remove(messageSnapshot.ref).catch(() => {}));
+    });
+
+    return Promise.all(removals);
+  }).catch(() => {});
 }
 
 function applyCensor(text) {
@@ -338,6 +427,8 @@ function connectDatabase() {
 }
 
 function clearActivePresence({ cancelDisconnect = false } = {}) {
+  stopPresenceHeartbeat();
+
   if (activeDisconnectRef && cancelDisconnect) {
     activeDisconnectRef.cancel().catch(() => {});
     activeDisconnectRef = null;
